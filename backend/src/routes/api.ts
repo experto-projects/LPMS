@@ -6,7 +6,10 @@ import { AuthController } from '../controllers/authController.ts';
 const router = Router();
 
 // Auth Endpoints
-router.post('/auth/session', AuthController.storeSession);
+router.get('/auth/google', AuthController.initiateGoogleAuth);
+router.get('/auth/google/callback', AuthController.handleGoogleCallback);
+router.get('/auth/me', AuthController.getCurrentUser);
+router.post('/auth/logout', AuthController.logout);
 
 // Settings Endpoints
 router.get('/settings', SettingsController.getSettings);

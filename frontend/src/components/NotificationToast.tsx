@@ -47,7 +47,7 @@ export const NotificationToast: React.FC<NotificationToastProps> = ({
 
   return (
     <div
-      className={`rounded-xl border p-4 flex items-start justify-between gap-3 shadow-[0_4px_12px_rgba(0,0,0,0.5)] ${currentStyle.bg} transition-all duration-150`}
+      className={`rounded-xl border p-4 flex items-start justify-between gap-3 shadow-[0_4px_12px_rgba(0,0,0,0.5)] ${currentStyle.bg} transition-all duration-150 font-sans`}
       role="alert"
     >
       <div className="flex items-start gap-3">

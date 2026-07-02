@@ -50,7 +50,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
   };
 
   return (
-    <div className="bg-zinc-950/40 rounded-xl border border-[#18181b] p-6 space-y-6">
+    <div className="bg-zinc-950/40 rounded-xl border border-[#18181b] p-6 space-y-6 font-sans">
       <div className="flex items-center space-x-3 pb-4 border-b border-zinc-900">
         <div className="p-2 rounded-lg bg-zinc-900 text-zinc-300 border border-zinc-850">
           <FolderOpen className="h-5 w-5" />
@@ -64,7 +64,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
       <form onSubmit={handleSaveSubmit} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="md:col-span-2">
-            <label htmlFor="folder-url" className="block text-[10px] font-semibold text-[#71717a] uppercase tracking-wider mb-2">
+            <label htmlFor="folder-url" className="block text-[10px] font-semibold text-[#71717a] uppercase tracking-wider mb-2 font-mono">
               Google Drive Folder URL or Folder ID
             </label>
             <input
@@ -78,7 +78,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
             />
           </div>
           <div>
-            <label htmlFor="scan-frequency" className="block text-[10px] font-semibold text-[#71717a] uppercase tracking-wider mb-2">
+            <label htmlFor="scan-frequency" className="block text-[10px] font-semibold text-[#71717a] uppercase tracking-wider mb-2 font-mono">
               Automatic Scan Frequency
             </label>
             <select
@@ -121,7 +121,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-zinc-900 text-sm">
           {folderName && (
             <div className="bg-[#050505] border border-zinc-900 p-3.5 rounded-lg">
-              <span className="block text-[10px] font-semibold text-[#71717a] uppercase tracking-wider mb-1.5">
+              <span className="block text-[10px] font-semibold text-[#71717a] uppercase tracking-wider mb-1.5 font-mono">
                 Monitored Folder
               </span>
               <span className="font-medium text-[#e4e4e7] flex items-center gap-1.5">
@@ -139,7 +139,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
           )}
 
           <div className="bg-[#050505] border border-zinc-900 p-3.5 rounded-lg">
-            <span className="block text-[10px] font-semibold text-[#71717a] uppercase tracking-wider mb-1.5">
+            <span className="block text-[10px] font-semibold text-[#71717a] uppercase tracking-wider mb-1.5 font-mono">
               Folder ID
             </span>
             <span className="font-mono text-xs text-zinc-400 select-all">
@@ -149,10 +149,10 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
 
           <div className="bg-[#050505] border border-zinc-900 p-3.5 rounded-lg relative flex flex-col justify-between">
             <div>
-              <span className="block text-[10px] font-semibold text-[#71717a] uppercase tracking-wider mb-1.5">
+              <span className="block text-[10px] font-semibold text-[#71717a] uppercase tracking-wider mb-1.5 font-mono">
                 Last Synchronized
               </span>
-              <span className="text-[#e4e4e7] flex items-center gap-1.5 font-medium">
+              <span className="text-[#e4e4e7] flex items-center gap-1.5 font-medium font-mono text-xs">
                 <Clock className="h-3.5 w-3.5 text-zinc-500" />
                 {formatDate(lastScanTime)}
               </span>
@@ -171,7 +171,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
           >
             {isScanning ? (
               <>
-                <RefreshCw className="animate-spin h-4 w-4 mr-2 animate-spin-reverse" />
+                <RefreshCw className="animate-spin h-4 w-4 mr-2" />
                 Scanning Folder...
               </>
             ) : (

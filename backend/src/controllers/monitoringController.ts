@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { MonitoringService } from '../services/monitoring.ts';
+import { getDatabase } from '../database/sqlite.ts';
 
 export class MonitoringController {
   /**
@@ -7,8 +8,11 @@ export class MonitoringController {
    */
   public static async scanFolder(req: Request, res: Response): Promise<void> {
     try {
-      const authHeader = req.headers.authorization;
-      if (!authHeader) {
+      const db = await getDatabase();
+      const settings = await db.getSettings();
+      const accessToken = settings?.admin_access_token;
+
+      if (!accessToken) {
         res.status(401).json({
           success: false,
           message: 'Authorization token is missing. Please sign in with Google first.'
@@ -16,7 +20,6 @@ export class MonitoringController {
         return;
       }
 
-      const accessToken = authHeader.replace(/^Bearer\s+/i, '');
       const dataset = await MonitoringService.scanFolder(accessToken);
 
       res.json({

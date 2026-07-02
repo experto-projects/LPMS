@@ -9,7 +9,7 @@ interface LoginViewProps {
 
 export const LoginView: React.FC<LoginViewProps> = ({ onLogin, isLoggingIn, error }) => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#050505] px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-[#050505] px-4 sm:px-6 lg:px-8 font-sans">
       <div className="max-w-md w-full space-y-8 bg-[#0a0a0a] p-8 rounded-xl border border-[#18181b] shadow-[0_8px_30px_rgb(0,0,0,0.5)]">
         <div className="flex flex-col items-center">
           <div className="h-12 w-12 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-[#fafafa] mb-5">
@@ -18,7 +18,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin, isLoggingIn, erro
           <h2 className="text-3xl font-serif italic text-[#fafafa] text-center tracking-tight">
             Project LAMP
           </h2>
-          <p className="mt-2 text-[10px] text-[#71717a] text-center uppercase tracking-[0.2em]">
+          <p className="mt-2 text-[10px] text-[#71717a] text-center uppercase tracking-[0.2em] font-mono">
             Lesson Approval and Management Portal
           </p>
         </div>
@@ -49,7 +49,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin, isLoggingIn, erro
           </button>
         </div>
 
-        <div className="text-center text-[10px] text-zinc-600 uppercase tracking-widest">
+        <div className="text-center text-[10px] text-zinc-600 uppercase tracking-widest font-mono">
           Project LAMP &bull; Lesson Approval and Management Portal
         </div>
       </div>

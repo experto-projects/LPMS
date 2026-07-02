@@ -58,48 +58,39 @@ export class SQLiteDatabase implements IDatabase {
         };
         this.isLoaded = true;
         return;
-      } catch (kvErr) {
-        console.error('Failed to load data from Cloudflare KV, falling back to local storage:', kvErr);
+      } catch (err) {
+        console.warn('Cloudflare KV read failed, falling back to local file system:', err);
       }
     }
 
-    // Node.js fallback (local filesystem)
     try {
-      const content = await fs.readFile(this.filePath, 'utf-8');
-      this.data = JSON.parse(content);
-      this.isLoaded = true;
-    } catch (error: any) {
-      if (error.code === 'ENOENT') {
-        // File does not exist yet, initialize with default empty state
-        this.data = {
-          settings: null,
-          scans: []
-        };
-        await this.saveToDisk();
-        this.isLoaded = true;
-      } else {
-        console.error('Failed to load JSON database:', error);
+      const exists = await fs.access(this.filePath).then(() => true).catch(() => false);
+      if (exists) {
+        const raw = await fs.readFile(this.filePath, 'utf-8');
+        this.data = JSON.parse(raw);
       }
+    } catch (error) {
+      console.error('Error loading database file from disk:', error);
     }
+    this.isLoaded = true;
   }
 
-  private async saveToDisk(): Promise<void> {
+  public async saveToDisk(): Promise<void> {
     const kv = this.getKV();
     if (kv) {
       try {
         await kv.put('settings', JSON.stringify(this.data.settings));
         await kv.put('scans', JSON.stringify(this.data.scans));
         return;
-      } catch (kvErr) {
-        console.error('Failed to save data to Cloudflare KV:', kvErr);
+      } catch (err) {
+        console.warn('Cloudflare KV write failed, falling back to local file system:', err);
       }
     }
 
-    // Node.js fallback (local filesystem)
     try {
       await fs.writeFile(this.filePath, JSON.stringify(this.data, null, 2), 'utf-8');
     } catch (error) {
-      console.error('Failed to write JSON database to disk:', error);
+      console.error('Failed to save database file to disk:', error);
     }
   }
 
@@ -117,13 +108,16 @@ export class SQLiteDatabase implements IDatabase {
   async saveSettings(url: string, folderId: string, scanFrequency: string): Promise<void> {
     await this.init();
     const existing = this.data.settings;
+    
     this.data.settings = {
       google_drive_folder_url: url,
       google_drive_folder_id: folderId,
       scan_frequency: scanFrequency,
       last_scan: existing ? existing.last_scan : null,
       admin_google_id: existing ? existing.admin_google_id : null,
-      admin_access_token: existing ? existing.admin_access_token : null
+      admin_access_token: existing ? existing.admin_access_token : null,
+      admin_name: existing ? existing.admin_name : null,
+      admin_email: existing ? existing.admin_email : null,
     };
     await this.saveToDisk();
   }
@@ -170,7 +164,7 @@ export class SQLiteDatabase implements IDatabase {
     };
 
     this.data.scans.push(newScan);
-    await this.updateLastScan(scanTime); // updateLastScan saves to disk too
+    await this.updateLastScan(scanTime);
     await this.saveToDisk();
 
     return newScan;
@@ -183,7 +177,6 @@ export class SQLiteDatabase implements IDatabase {
   }
 }
 
-// Export a singleton database instance
 let databaseInstance: IDatabase | null = null;
 
 export async function getDatabase(): Promise<IDatabase> {

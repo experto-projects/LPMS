@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, FileText, Check, AlertCircle, RefreshCw } from 'lucide-react';
+import { Search, FileText, AlertCircle, RefreshCw } from 'lucide-react';
 import { MonitoringDataset } from '../types.ts';
 
 interface MonitoringGridProps {
@@ -48,7 +48,7 @@ export const MonitoringGrid: React.FC<MonitoringGridProps> = ({ dataset, isLoadi
             : "Please configure a Google Drive folder and trigger a folder scan to populate the monitoring matrix."}
         </p>
         {!dataset && (
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-zinc-500 font-sans">
             Once saved, Project LAMP will read Google Documents in the folder, scan their tabs, and compile a grid.
           </p>
         )}
@@ -62,7 +62,7 @@ export const MonitoringGrid: React.FC<MonitoringGridProps> = ({ dataset, isLoadi
   );
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 font-sans">
       {/* Search and Metadata Controls */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         <div className="relative flex-1 max-w-xs">
@@ -78,7 +78,7 @@ export const MonitoringGrid: React.FC<MonitoringGridProps> = ({ dataset, isLoadi
           />
         </div>
 
-        <div className="text-xs text-zinc-500 font-medium text-right self-end sm:self-center">
+        <div className="text-xs text-zinc-500 font-medium text-right self-end sm:self-center font-mono">
           Showing {filteredRows.length} of {dataset.rows.length} teacher documents
         </div>
       </div>
@@ -88,7 +88,7 @@ export const MonitoringGrid: React.FC<MonitoringGridProps> = ({ dataset, isLoadi
         {/* Horizontal scroll container */}
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-[#18181b] text-left text-sm">
-            <thead className="bg-[#0a0a0a] select-none font-semibold text-zinc-500 text-xs uppercase tracking-wider">
+            <thead className="bg-[#0a0a0a] select-none font-semibold text-zinc-500 text-xs uppercase tracking-wider font-mono">
               <tr>
                 <th scope="col" className="sticky left-0 bg-[#0a0a0a] px-6 py-4 border-r border-zinc-900/60 z-10 w-64 min-w-[240px]">
                   Teacher / Google Doc
@@ -133,7 +133,7 @@ export const MonitoringGrid: React.FC<MonitoringGridProps> = ({ dataset, isLoadi
                     </div>
                   </td>
 
-                  <td className="px-6 py-4 text-xs text-zinc-500 whitespace-nowrap">
+                  <td className="px-6 py-4 text-xs text-zinc-500 whitespace-nowrap font-mono">
                     {formatDate(row.lastModified)}
                   </td>
 
@@ -149,7 +149,7 @@ export const MonitoringGrid: React.FC<MonitoringGridProps> = ({ dataset, isLoadi
                             ✓
                           </div>
                         ) : (
-                          <span className="text-zinc-800 font-light text-xs">-</span>
+                          <span className="text-zinc-800 font-light text-xs font-mono">-</span>
                         )}
                       </td>
                     );

@@ -3,6 +3,9 @@ export interface Settings {
   google_drive_folder_id: string;
   last_scan: string | null;
   scan_frequency: string;
+  admin_google_id?: string | null;
+  admin_name?: string | null;
+  admin_email?: string | null;
 }
 
 export interface TeacherSubmissionRow {

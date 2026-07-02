@@ -19,7 +19,9 @@ export class SettingsController {
           google_drive_folder_id: '',
           last_scan: null,
           scan_frequency: 'manual',
-          admin_google_id: null
+          admin_google_id: null,
+          admin_name: null,
+          admin_email: null
         }
       });
     } catch (error: any) {
@@ -37,7 +39,6 @@ export class SettingsController {
   public static async saveSettings(req: Request, res: Response): Promise<void> {
     try {
       const { google_drive_folder_url, scan_frequency } = req.body;
-      const authHeader = req.headers.authorization;
       const frequency = scan_frequency || 'manual';
 
       if (!google_drive_folder_url) {
@@ -58,10 +59,13 @@ export class SettingsController {
         return;
       }
 
-      // Optional: If an OAuth access token is passed in the header, let's verify folder access
-      if (authHeader) {
+      const db = await getDatabase();
+      const settings = await db.getSettings();
+      const accessToken = settings?.admin_access_token;
+
+      // If we have an authorized token stored, let's verify folder access immediately
+      if (accessToken) {
         try {
-          const accessToken = authHeader.replace(/^Bearer\s+/i, '');
           await GoogleService.validateFolder(accessToken, folderId);
         } catch (err: any) {
           res.status(400).json({
@@ -72,7 +76,6 @@ export class SettingsController {
         }
       }
 
-      const db = await getDatabase();
       await db.saveSettings(google_drive_folder_url, folderId, frequency);
 
       res.json({
@@ -81,7 +84,7 @@ export class SettingsController {
         data: {
           google_drive_folder_url,
           google_drive_folder_id: folderId,
-          last_scan: null,
+          last_scan: settings?.last_scan || null,
           scan_frequency: frequency
         }
       });

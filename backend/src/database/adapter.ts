@@ -10,6 +10,8 @@ export interface Settings {
   scan_frequency: string; // 'manual', 'hourly', 'daily'
   admin_google_id: string | null;
   admin_access_token: string | null;
+  admin_name?: string | null;
+  admin_email?: string | null;
 }
 
 export interface ScanResult {
@@ -26,4 +28,5 @@ export interface IDatabase {
   updateLastScan(time: string): Promise<void>;
   saveScanResult(dataset: any): Promise<ScanResult>;
   getLatestScan(): Promise<ScanResult | null>;
+  saveToDisk(): Promise<void>;
 }

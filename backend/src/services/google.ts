@@ -82,7 +82,6 @@ export class GoogleService {
    * Retrieves all Google Documents from a given Google Drive folder.
    */
   public static async getDocumentsInFolder(accessToken: string, folderId: string): Promise<GoogleDocFile[]> {
-    // Escaped query for security: in parents, is google doc format, and not trashed
     const query = `'${folderId}' in parents and mimeType = 'application/vnd.google-apps.document' and trashed = false`;
     const url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&fields=files(id,name,modifiedTime)&pageSize=100`;
     
@@ -94,13 +93,11 @@ export class GoogleService {
    * Reads metadata of a Google Document including its tabs structure.
    */
   public static async getDocumentTabs(accessToken: string, documentId: string): Promise<GoogleDocTab[]> {
-    // Fetch document with includeTabsContent = true to ensure tabs metadata are fully returned
     const url = `https://docs.googleapis.com/v1/documents/${documentId}?includeTabsContent=true`;
     const doc = await this.authorizedFetch(url, accessToken);
 
     const tabs: GoogleDocTab[] = [];
     
-    // Recursive traverse to handle nested/child tabs safely
     function traverse(tabList: any[]) {
       for (const tab of tabList) {
         if (tab.tabProperties) {

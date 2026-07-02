@@ -38,7 +38,6 @@ export class MonitoringService {
     const documents = await GoogleService.getDocumentsInFolder(accessToken, folderId);
 
     if (documents.length === 0) {
-      // Return a blank dataset if there are no documents
       return {
         folderId,
         folderName: folderMeta.name,
@@ -86,7 +85,6 @@ export class MonitoringService {
     const uniqueDates = Array.from(uniqueDatesSet);
 
     // Sort unique dates dynamically
-    // We try to parse them as dates first, sorting chronological. If they are not valid dates, sort alphabetically.
     const sortedColumns = uniqueDates.sort((a, b) => {
       const timeA = Date.parse(a);
       const timeB = Date.parse(b);
@@ -97,7 +95,7 @@ export class MonitoringService {
       if (isAValidDate && isBValidDate) {
         return timeA - timeB;
       } else if (isAValidDate) {
-        return -1; // place valid dates first
+        return -1;
       } else if (isBValidDate) {
         return 1;
       } else {
@@ -109,12 +107,10 @@ export class MonitoringService {
     const rows: TeacherSubmissionRow[] = parsedDocs.map((d) => {
       const submissions: { [dateColumn: string]: boolean } = {};
       
-      // Initialize all columns as false
       sortedColumns.forEach((col) => {
         submissions[col] = false;
       });
 
-      // Mark matched columns as true
       d.tabs.forEach((tab) => {
         if (tab.title && submissions[tab.title] !== undefined) {
           submissions[tab.title] = true;
