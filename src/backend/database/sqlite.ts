@@ -26,7 +26,10 @@ export class SQLiteDatabase implements IDatabase {
         id INTEGER PRIMARY KEY CHECK (id = 1),
         google_drive_folder_url TEXT NOT NULL,
         google_drive_folder_id TEXT NOT NULL,
-        last_scan TEXT
+        last_scan TEXT,
+        scan_frequency TEXT NOT NULL DEFAULT 'manual',
+        admin_google_id TEXT,
+        admin_access_token TEXT
       );
 
       CREATE TABLE IF NOT EXISTS scans (
@@ -35,6 +38,17 @@ export class SQLiteDatabase implements IDatabase {
         dataset TEXT NOT NULL
       );
     `);
+
+    // Gracefully alter table for migration if columns don't exist
+    try {
+      await this.db.exec(`ALTER TABLE settings ADD COLUMN scan_frequency TEXT NOT NULL DEFAULT 'manual';`);
+    } catch (e) {}
+    try {
+      await this.db.exec(`ALTER TABLE settings ADD COLUMN admin_google_id TEXT;`);
+    } catch (e) {}
+    try {
+      await this.db.exec(`ALTER TABLE settings ADD COLUMN admin_access_token TEXT;`);
+    } catch (e) {}
   }
 
   private getDb(): Database {
@@ -46,27 +60,51 @@ export class SQLiteDatabase implements IDatabase {
 
   async getSettings(): Promise<Settings | null> {
     const db = this.getDb();
-    const row = await db.get('SELECT google_drive_folder_url, google_drive_folder_id, last_scan FROM settings WHERE id = 1');
+    const row = await db.get('SELECT google_drive_folder_url, google_drive_folder_id, last_scan, scan_frequency, admin_google_id, admin_access_token FROM settings WHERE id = 1');
     if (!row) return null;
     return {
       google_drive_folder_url: row.google_drive_folder_url,
       google_drive_folder_id: row.google_drive_folder_id,
-      last_scan: row.last_scan
+      last_scan: row.last_scan,
+      scan_frequency: row.scan_frequency || 'manual',
+      admin_google_id: row.admin_google_id || null,
+      admin_access_token: row.admin_access_token || null
     };
   }
 
-  async saveSettings(url: string, folderId: string): Promise<void> {
+  async saveSettings(url: string, folderId: string, scanFrequency: string): Promise<void> {
     const db = this.getDb();
     // Use INSERT OR REPLACE on id = 1 to maintain a single global setting row
     await db.run(
-      `INSERT INTO settings (id, google_drive_folder_url, google_drive_folder_id, last_scan)
-       VALUES (1, ?, ?, NULL)
+      `INSERT INTO settings (id, google_drive_folder_url, google_drive_folder_id, last_scan, scan_frequency)
+       VALUES (1, ?, ?, NULL, ?)
        ON CONFLICT(id) DO UPDATE SET
          google_drive_folder_url = excluded.google_drive_folder_url,
-         google_drive_folder_id = excluded.google_drive_folder_id`,
+         google_drive_folder_id = excluded.google_drive_folder_id,
+         scan_frequency = excluded.scan_frequency`,
       url,
-      folderId
+      folderId,
+      scanFrequency
     );
+  }
+
+  async storeAdminSession(googleId: string, accessToken: string): Promise<void> {
+    const db = this.getDb();
+    const existing = await this.getSettings();
+    if (existing) {
+      await db.run(
+        `UPDATE settings SET admin_google_id = ?, admin_access_token = ? WHERE id = 1`,
+        googleId,
+        accessToken
+      );
+    } else {
+      await db.run(
+        `INSERT INTO settings (id, google_drive_folder_url, google_drive_folder_id, last_scan, scan_frequency, admin_google_id, admin_access_token)
+         VALUES (1, '', '', NULL, 'manual', ?, ?)`,
+        googleId,
+        accessToken
+      );
+    }
   }
 
   async updateLastScan(time: string): Promise<void> {

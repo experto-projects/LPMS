@@ -2,6 +2,7 @@ import express from 'express';
 import path from 'path';
 import { createServer as createViteServer } from 'vite';
 import apiRouter from './src/backend/routes/api.ts';
+import { BackgroundScheduler } from './src/backend/services/scheduler.ts';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -20,6 +21,9 @@ async function startServer() {
   app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', time: new Date().toISOString() });
   });
+
+  // Start background monitoring scheduler
+  BackgroundScheduler.start();
 
   // Integrate Vite dev server or static production server
   if (process.env.NODE_ENV !== 'production') {

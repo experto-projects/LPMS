@@ -7,6 +7,9 @@ export interface Settings {
   google_drive_folder_url: string;
   google_drive_folder_id: string;
   last_scan: string | null;
+  scan_frequency: string; // 'manual', 'hourly', 'daily'
+  admin_google_id: string | null;
+  admin_access_token: string | null;
 }
 
 export interface ScanResult {
@@ -18,7 +21,8 @@ export interface ScanResult {
 export interface IDatabase {
   init(): Promise<void>;
   getSettings(): Promise<Settings | null>;
-  saveSettings(url: string, folderId: string): Promise<void>;
+  saveSettings(url: string, folderId: string, scanFrequency: string): Promise<void>;
+  storeAdminSession(googleId: string, accessToken: string): Promise<void>;
   updateLastScan(time: string): Promise<void>;
   saveScanResult(dataset: any): Promise<ScanResult>;
   getLatestScan(): Promise<ScanResult | null>;

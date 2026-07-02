@@ -6,6 +6,7 @@ export interface SettingsResponse {
   google_drive_folder_url: string;
   google_drive_folder_id: string;
   last_scan: string | null;
+  scan_frequency: string;
 }
 
 export interface TeacherSubmissionRow {
@@ -39,9 +40,9 @@ export class ApiService {
   }
 
   /**
-   * Saves Google Drive folder configuration. Passes OAuth access token to verify folder existence.
+   * Saves Google Drive folder configuration and scan frequency. Passes OAuth access token to verify folder existence.
    */
-  public static async saveSettings(folderUrl: string, accessToken?: string | null): Promise<SettingsResponse> {
+  public static async saveSettings(folderUrl: string, scanFrequency: string, accessToken?: string | null): Promise<SettingsResponse> {
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
     };
@@ -52,7 +53,10 @@ export class ApiService {
     const response = await fetch('/api/settings', {
       method: 'POST',
       headers,
-      body: JSON.stringify({ google_drive_folder_url: folderUrl }),
+      body: JSON.stringify({ 
+        google_drive_folder_url: folderUrl,
+        scan_frequency: scanFrequency
+      }),
     });
 
     if (!response.ok) {
@@ -62,6 +66,24 @@ export class ApiService {
 
     const result = await response.json();
     return result.data;
+  }
+
+  /**
+   * Stores the admin's Google ID and current Google access token in the backend database.
+   */
+  public static async storeAdminSession(googleId: string, accessToken: string): Promise<void> {
+    const response = await fetch('/api/auth/session', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ googleId, accessToken }),
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.message || 'Failed to sync authentication session with server.');
+    }
   }
 
   /**

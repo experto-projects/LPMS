@@ -98,6 +98,14 @@ export default function App() {
         setUser(result.user);
         setToken(result.accessToken);
         setNeedsAuth(false);
+
+        // Securely sync the user's Google ID and access token to the backend
+        try {
+          await ApiService.storeAdminSession(result.user.uid, result.accessToken);
+        } catch (sessErr) {
+          console.error('Failed to sync authentication session with server:', sessErr);
+        }
+
         showNotification('Successfully authenticated with Google.', 'success');
         
         // Reload settings and verification
@@ -124,14 +132,14 @@ export default function App() {
     }
   };
 
-  const handleSaveSettings = async (url: string) => {
+  const handleSaveSettings = async (url: string, frequency: string) => {
     setIsSavingSettings(true);
     clearNotification();
     try {
       // Pass token so backend can verify folder exists and is readable
-      const updated = await ApiService.saveSettings(url, token);
+      const updated = await ApiService.saveSettings(url, frequency, token);
       setSettings(updated);
-      showNotification('Google Drive Folder configured and saved successfully.', 'success');
+      showNotification('Google Drive configuration and automated scan frequency saved successfully.', 'success');
     } catch (err: any) {
       console.error('Failed to save settings:', err);
       showNotification(err.message || 'Failed to save settings. Make sure you have authorized access.', 'error');

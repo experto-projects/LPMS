@@ -4,7 +4,7 @@ import { Settings } from '../types.ts';
 
 interface SettingsPanelProps {
   settings: Settings | null;
-  onSave: (url: string) => Promise<void>;
+  onSave: (url: string, frequency: string) => Promise<void>;
   onScan: () => Promise<void>;
   isSaving: boolean;
   isScanning: boolean;
@@ -22,17 +22,21 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
   folderName,
 }) => {
   const [folderUrl, setFolderUrl] = useState('');
+  const [scanFrequency, setScanFrequency] = useState('manual');
 
   // Sync state when settings load
   useEffect(() => {
     if (settings?.google_drive_folder_url) {
       setFolderUrl(settings.google_drive_folder_url);
     }
+    if (settings?.scan_frequency) {
+      setScanFrequency(settings.scan_frequency);
+    }
   }, [settings]);
 
   const handleSaveSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(folderUrl);
+    onSave(folderUrl, scanFrequency);
   };
 
   const formatDate = (isoString: string | null) => {
@@ -53,44 +57,63 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
         </div>
         <div>
           <h3 className="font-semibold text-[#fafafa]">Google Drive Configuration</h3>
-          <p className="text-xs text-[#71717a]">Specify the monitoring folder for teacher lesson plans</p>
+          <p className="text-xs text-[#71717a]">Specify the monitoring folder and automated execution frequency</p>
         </div>
       </div>
 
       <form onSubmit={handleSaveSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="folder-url" className="block text-[10px] font-semibold text-[#71717a] uppercase tracking-wider mb-2">
-            Google Drive Folder URL or Folder ID
-          </label>
-          <div className="flex flex-col sm:flex-row gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="md:col-span-2">
+            <label htmlFor="folder-url" className="block text-[10px] font-semibold text-[#71717a] uppercase tracking-wider mb-2">
+              Google Drive Folder URL or Folder ID
+            </label>
             <input
               id="folder-url"
               type="text"
               value={folderUrl}
               onChange={(e) => setFolderUrl(e.target.value)}
               placeholder="https://drive.google.com/drive/folders/xxxxxxxxxxxxxxxx"
-              className="flex-1 min-w-0 block w-full px-3.5 py-2.5 rounded-lg text-sm border border-[#27272a] bg-[#000] text-[#fff] placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-zinc-700 focus:border-[#3f3f46] font-mono"
+              className="block w-full px-3.5 py-2.5 rounded-lg text-sm border border-[#27272a] bg-[#000] text-[#fff] placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-zinc-700 focus:border-[#3f3f46] font-mono"
               disabled={isSaving || isScanning}
             />
-            <button
-              id="save-settings-btn"
-              type="submit"
-              disabled={isSaving || isScanning || !folderUrl.trim()}
-              className="inline-flex items-center justify-center px-5 py-2.5 border border-[#3f3f46] rounded-lg text-xs font-semibold text-[#fafafa] bg-transparent hover:bg-zinc-900 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shrink-0"
-            >
-              {isSaving ? (
-                <>
-                  <RefreshCw className="animate-spin h-4 w-4 mr-2" />
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <Save className="h-4 w-4 mr-2" />
-                  Save Folder
-                </>
-              )}
-            </button>
           </div>
+          <div>
+            <label htmlFor="scan-frequency" className="block text-[10px] font-semibold text-[#71717a] uppercase tracking-wider mb-2">
+              Automatic Scan Frequency
+            </label>
+            <select
+              id="scan-frequency"
+              value={scanFrequency}
+              onChange={(e) => setScanFrequency(e.target.value)}
+              className="block w-full px-3.5 py-2.5 rounded-lg text-sm border border-[#27272a] bg-[#000] text-[#fff] focus:outline-none focus:ring-1 focus:ring-zinc-700 focus:border-[#3f3f46]"
+              disabled={isSaving || isScanning}
+            >
+              <option value="manual">Manual (On-Demand)</option>
+              <option value="hourly">Hourly (Every 1 hour)</option>
+              <option value="daily">Daily (Every 24 hours)</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="flex justify-end">
+          <button
+            id="save-settings-btn"
+            type="submit"
+            disabled={isSaving || isScanning || !folderUrl.trim()}
+            className="inline-flex items-center justify-center px-5 py-2.5 border border-[#3f3f46] rounded-lg text-xs font-semibold text-[#fafafa] bg-transparent hover:bg-zinc-900 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+          >
+            {isSaving ? (
+              <>
+                <RefreshCw className="animate-spin h-4 w-4 mr-2" />
+                Saving Config...
+              </>
+            ) : (
+              <>
+                <Save className="h-4 w-4 mr-2" />
+                Save Configuration
+              </>
+            )}
+          </button>
         </div>
       </form>
 

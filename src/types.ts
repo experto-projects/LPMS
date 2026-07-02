@@ -2,6 +2,7 @@ export interface Settings {
   google_drive_folder_url: string;
   google_drive_folder_id: string;
   last_scan: string | null;
+  scan_frequency: string;
 }
 
 export interface TeacherSubmissionRow {

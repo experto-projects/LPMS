@@ -17,7 +17,9 @@ export class SettingsController {
         data: settings || {
           google_drive_folder_url: '',
           google_drive_folder_id: '',
-          last_scan: null
+          last_scan: null,
+          scan_frequency: 'manual',
+          admin_google_id: null
         }
       });
     } catch (error: any) {
@@ -34,8 +36,9 @@ export class SettingsController {
    */
   public static async saveSettings(req: Request, res: Response): Promise<void> {
     try {
-      const { google_drive_folder_url } = req.body;
+      const { google_drive_folder_url, scan_frequency } = req.body;
       const authHeader = req.headers.authorization;
+      const frequency = scan_frequency || 'manual';
 
       if (!google_drive_folder_url) {
         res.status(400).json({
@@ -70,7 +73,7 @@ export class SettingsController {
       }
 
       const db = await getDatabase();
-      await db.saveSettings(google_drive_folder_url, folderId);
+      await db.saveSettings(google_drive_folder_url, folderId, frequency);
 
       res.json({
         success: true,
@@ -78,7 +81,8 @@ export class SettingsController {
         data: {
           google_drive_folder_url,
           google_drive_folder_id: folderId,
-          last_scan: null
+          last_scan: null,
+          scan_frequency: frequency
         }
       });
     } catch (error: any) {

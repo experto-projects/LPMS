@@ -1,8 +1,12 @@
 import { Router } from 'express';
 import { SettingsController } from '../controllers/settingsController.ts';
 import { MonitoringController } from '../controllers/monitoringController.ts';
+import { AuthController } from '../controllers/authController.ts';
 
 const router = Router();
+
+// Auth Endpoints
+router.post('/auth/session', AuthController.storeSession);
 
 // Settings Endpoints
 router.get('/settings', SettingsController.getSettings);
