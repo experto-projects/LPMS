@@ -172,9 +172,9 @@ export default function App() {
   // While checking Firebase Auth status
   if (isInitializing) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 space-y-4">
-        <RefreshCw className="h-8 w-8 text-indigo-600 animate-spin" />
-        <p className="text-sm font-medium text-gray-500">Initializing authentication session...</p>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#050505] space-y-4">
+        <RefreshCw className="h-8 w-8 text-zinc-300 animate-spin" />
+        <p className="text-sm font-medium text-zinc-400">Initializing authentication session...</p>
       </div>
     );
   }
@@ -191,21 +191,21 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-[#050505] text-zinc-300 flex flex-col font-sans">
       {/* Navigation Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-20 shadow-xs">
+      <header className="bg-[#0a0a0a] border-b border-[#18181b] sticky top-0 z-20 shadow-[0_1px_10px_rgba(0,0,0,0.4)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
             {/* Logo */}
             <div className="flex items-center space-x-3">
-              <div className="h-9 w-9 bg-indigo-600 rounded-lg flex items-center justify-center text-white">
+              <div className="h-9 w-9 bg-zinc-900 border border-zinc-800 rounded-lg flex items-center justify-center text-zinc-200">
                 <BookOpenCheck className="h-5 w-5" />
               </div>
               <div>
-                <span className="font-bold text-gray-900 tracking-tight block text-sm sm:text-base">
+                <span className="font-serif italic text-base sm:text-lg text-[#fafafa] tracking-tight block">
                   LPMS Dashboard
                 </span>
-                <span className="text-[10px] text-gray-400 block -mt-1 font-mono">
+                <span className="text-[10px] text-zinc-500 block uppercase tracking-widest font-mono">
                   Phase 1 MVP
                 </span>
               </div>
@@ -218,13 +218,13 @@ export default function App() {
                   src={user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || 'Teacher')}`}
                   alt={user.displayName || 'Profile'}
                   referrerPolicy="no-referrer"
-                  className="h-8 w-8 rounded-full border border-gray-200"
+                  className="h-8 w-8 rounded-full border border-zinc-800"
                 />
                 <div className="text-xs">
-                  <span className="font-medium text-gray-800 block">
+                  <span className="font-medium text-zinc-200 block">
                     {user.displayName}
                   </span>
-                  <span className="text-gray-400 text-[10px] block">
+                  <span className="text-zinc-500 text-[10px] block">
                     {user.email}
                   </span>
                 </div>
@@ -233,7 +233,7 @@ export default function App() {
               <button
                 id="logout-btn"
                 onClick={handleLogout}
-                className="inline-flex items-center justify-center p-2 rounded-lg text-gray-500 hover:text-rose-600 hover:bg-rose-50/50 focus:outline-none transition-colors cursor-pointer"
+                className="inline-flex items-center justify-center p-2 rounded-lg text-zinc-400 hover:text-rose-400 hover:bg-zinc-900/60 focus:outline-none transition-colors cursor-pointer"
                 title="Sign Out"
               >
                 <LogOut className="h-5 w-5" />
@@ -265,11 +265,11 @@ export default function App() {
 
         {/* Monitoring Grid Area */}
         <div className="space-y-4">
-          <div className="border-b border-gray-200 pb-2">
-            <h2 className="text-lg font-semibold tracking-tight text-gray-900">
+          <div className="border-b border-zinc-900 pb-3">
+            <h2 className="text-2xl font-serif italic text-[#fafafa] tracking-tight">
               Lesson Plan Submissions Matrix
             </h2>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-zinc-500 mt-1">
               Shows lesson execution dates matching tabs extracted from each teacher's Google Doc
             </p>
           </div>
@@ -283,9 +283,9 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-gray-100 py-6 text-center text-xs text-gray-400">
+      <footer className="bg-[#050505] border-t border-[#18181b] py-6 text-center text-[10px] text-zinc-600 uppercase tracking-widest">
         <div className="max-w-7xl mx-auto px-4">
-          &copy; {new Date().getFullYear()} Lesson Plan Monitoring System. Designed for scale and maintainability.
+          &copy; {new Date().getFullYear()} Lesson Plan Monitoring System &bull; Designed for scale and maintainability
         </div>
       </footer>
     </div>

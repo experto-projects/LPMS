@@ -9,24 +9,24 @@ interface LoginViewProps {
 
 export const LoginView: React.FC<LoginViewProps> = ({ onLogin, isLoggingIn, error }) => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+    <div className="min-h-screen flex items-center justify-center bg-[#050505] px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8 bg-[#0a0a0a] p-8 rounded-xl border border-[#18181b] shadow-[0_8px_30px_rgb(0,0,0,0.5)]">
         <div className="flex flex-col items-center">
-          <div className="h-12 w-12 rounded-xl bg-indigo-600 flex items-center justify-center text-white mb-4">
-            <BookOpenCheck className="h-7 w-7" />
+          <div className="h-12 w-12 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-[#fafafa] mb-5">
+            <BookOpenCheck className="h-6 w-6" />
           </div>
-          <h2 className="text-2xl font-semibold tracking-tight text-gray-900 text-center">
-            Lesson Plan Monitoring
+          <h2 className="text-3xl font-serif italic text-[#fafafa] text-center tracking-tight">
+            LPMS Foundation
           </h2>
-          <p className="mt-2 text-sm text-gray-500 text-center">
-            Sign in with Google to access and monitor Google Drive lesson plan documents.
+          <p className="mt-2 text-[10px] text-[#71717a] text-center uppercase tracking-[0.2em]">
+            Phase 1 Monitoring Interface
           </p>
         </div>
 
         {error && (
-          <div className="rounded-md bg-red-50 p-4 border border-red-100 flex items-start space-x-3">
-            <ShieldAlert className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
-            <div className="text-xs text-red-700 leading-relaxed">{error}</div>
+          <div className="rounded-lg bg-rose-950/20 p-4 border border-rose-900/40 flex items-start space-x-3">
+            <ShieldAlert className="h-5 w-5 text-rose-500 shrink-0 mt-0.5" />
+            <div className="text-xs text-rose-300 leading-relaxed">{error}</div>
           </div>
         )}
 
@@ -34,7 +34,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin, isLoggingIn, erro
           <button
             onClick={onLogin}
             disabled={isLoggingIn}
-            className="group relative w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors cursor-pointer disabled:opacity-50"
+            className="group relative w-full flex items-center justify-center px-4 py-3 border border-zinc-800 rounded-lg text-sm font-medium text-zinc-300 bg-zinc-900/60 hover:bg-zinc-900 hover:text-white focus:outline-none focus:ring-1 focus:ring-zinc-700 focus:border-zinc-600 transition-all duration-200 cursor-pointer disabled:opacity-50"
             id="gsi-login-btn"
           >
             <div className="flex items-center space-x-3">
@@ -49,7 +49,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin, isLoggingIn, erro
           </button>
         </div>
 
-        <div className="text-center text-xs text-gray-400">
+        <div className="text-center text-[10px] text-zinc-600 uppercase tracking-widest">
           Lesson Plan Monitoring System &bull; Phase 1 MVP
         </div>
       </div>
