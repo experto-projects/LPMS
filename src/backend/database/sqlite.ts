@@ -12,12 +12,58 @@ export class SQLiteDatabase implements IDatabase {
     scans: []
   };
   private isLoaded: boolean = false;
+  private useKV: boolean = false;
+  private kvNamespace: any = null;
 
   constructor() {
     this.filePath = path.join(process.cwd(), 'lpms_store.json');
   }
 
+  /**
+   * Dynamically resolves the Cloudflare KV namespace if available in the execution environment.
+   */
+  private getKV(): any {
+    if (this.kvNamespace) return this.kvNamespace;
+
+    if (typeof globalThis !== 'undefined') {
+      // Check global scope for LPMS_KV binding (standard for Workers)
+      if ('LPMS_KV' in globalThis) {
+        this.kvNamespace = (globalThis as any).LPMS_KV;
+        this.useKV = true;
+        return this.kvNamespace;
+      }
+      
+      // Check standard env context on global
+      const g = globalThis as any;
+      if (g.env && g.env.LPMS_KV) {
+        this.kvNamespace = g.env.LPMS_KV;
+        this.useKV = true;
+        return this.kvNamespace;
+      }
+    }
+    return null;
+  }
+
   private async load(): Promise<void> {
+    const kv = this.getKV();
+    if (kv) {
+      this.useKV = true;
+      try {
+        const settingsStr = await kv.get('settings');
+        const scansStr = await kv.get('scans');
+        
+        this.data = {
+          settings: settingsStr ? JSON.parse(settingsStr) : null,
+          scans: scansStr ? JSON.parse(scansStr) : []
+        };
+        this.isLoaded = true;
+        return;
+      } catch (kvErr) {
+        console.error('Failed to load data from Cloudflare KV, falling back to local storage:', kvErr);
+      }
+    }
+
+    // Node.js fallback (local filesystem)
     try {
       const content = await fs.readFile(this.filePath, 'utf-8');
       this.data = JSON.parse(content);
@@ -38,6 +84,18 @@ export class SQLiteDatabase implements IDatabase {
   }
 
   private async saveToDisk(): Promise<void> {
+    const kv = this.getKV();
+    if (kv) {
+      try {
+        await kv.put('settings', JSON.stringify(this.data.settings));
+        await kv.put('scans', JSON.stringify(this.data.scans));
+        return;
+      } catch (kvErr) {
+        console.error('Failed to save data to Cloudflare KV:', kvErr);
+      }
+    }
+
+    // Node.js fallback (local filesystem)
     try {
       await fs.writeFile(this.filePath, JSON.stringify(this.data, null, 2), 'utf-8');
     } catch (error) {

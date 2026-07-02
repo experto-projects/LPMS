@@ -1,0 +1,24 @@
+#:schema node_modules/wrangler/config-schema.json
+name = "lpms-lesson-plan-monitor"
+compatibility_date = "2024-05-02"
+compatibility_flags = ["nodejs_compat"]
+
+# Static Assets Configuration (Vite's production build)
+[assets]
+directory = "./dist"
+binding = "ASSETS"
+
+# Persistent KV Storage for Settings & Scans
+# 1. Create a KV Namespace in Cloudflare: npx wrangler kv:namespace create LPMS_KV
+# 2. Copy the returned ID and replace the value below
+[[kv_namespaces]]
+binding = "LPMS_KV"
+id = "YOUR_CLOUDFLARE_KV_NAMESPACE_ID_HERE"
+
+# Environment Variables
+[vars]
+NODE_ENV = "production"
+
+# How to deploy to Cloudflare:
+# 1. Run "npm run build" to build the SPA front-end assets
+# 2. Run "npx wrangler deploy" to deploy the entire project!

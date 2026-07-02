@@ -81,3 +81,40 @@ LPMS includes robust error handling to guide users smoothly:
 - **Access Denied**: Prompts authentication updates if permissions are missing or revoked.
 - **Empty Folder**: Displays a beautiful empty state when no files exist inside the designated folder.
 - **Tab Read Failure**: Displays a localized alert inside the grid for specific teacher files while preserving the overall matrix render.
+
+---
+
+## ⚡ Cloudflare Workers & Pages Deployment
+
+The LPMS codebase has been fully updated and optimized to support direct deployment to **Cloudflare Workers** (with unified static asset hosting).
+
+### 1. Database Persistence via Cloudflare KV
+In serverless environments like Cloudflare, the local file system is read-only. To resolve this, the database layer (`sqlite.ts`) is designed as a **dual-mode engine**:
+- **Local Dev**: Uses `lpms_store.json` on Node.js.
+- **Cloudflare**: Automatically detects and uses **Cloudflare KV Namespace** if the binding `LPMS_KV` is available!
+
+### 2. Deployment Steps
+
+#### Step A: Configure Wrangler & KV Namespace
+1. Make sure you have the Cloudflare CLI `wrangler` installed and are logged in:
+   ```bash
+   npx wrangler login
+   ```
+2. Create a new KV Namespace on Cloudflare:
+   ```bash
+   npx wrangler kv:namespace create LPMS_KV
+   ```
+3. Open the newly created `wrangler.toml` file in the root directory and replace the placeholder ID in `id = "YOUR_CLOUDFLARE_KV_NAMESPACE_ID_HERE"` with the ID returned by the CLI.
+
+#### Step B: Build and Deploy
+1. Run a clean production build of your frontend and assets:
+   ```bash
+   npm run build
+   ```
+2. Deploy the entire application (including the static assets and worker backend) to Cloudflare:
+   ```bash
+   npx wrangler deploy
+   ```
+
+Now, your Lesson Plan Monitoring System is running globally on Cloudflare’s edge networks!
+
