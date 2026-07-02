@@ -1,147 +1,127 @@
-import sqlite3 from 'sqlite3';
-import { open, Database } from 'sqlite';
-import { IDatabase, Settings, ScanResult } from './adapter.ts';
+import fs from 'fs/promises';
 import path from 'path';
+import { IDatabase, Settings, ScanResult } from './adapter.ts';
 
 export class SQLiteDatabase implements IDatabase {
-  private db: Database | null = null;
-  private dbPath: string;
+  private filePath: string;
+  private data: {
+    settings: Settings | null;
+    scans: ScanResult[];
+  } = {
+    settings: null,
+    scans: []
+  };
+  private isLoaded: boolean = false;
 
   constructor() {
-    // Store sqlite database file in the project workspace
-    this.dbPath = path.join(process.cwd(), 'lpms.db');
+    this.filePath = path.join(process.cwd(), 'lpms_store.json');
+  }
+
+  private async load(): Promise<void> {
+    try {
+      const content = await fs.readFile(this.filePath, 'utf-8');
+      this.data = JSON.parse(content);
+      this.isLoaded = true;
+    } catch (error: any) {
+      if (error.code === 'ENOENT') {
+        // File does not exist yet, initialize with default empty state
+        this.data = {
+          settings: null,
+          scans: []
+        };
+        await this.saveToDisk();
+        this.isLoaded = true;
+      } else {
+        console.error('Failed to load JSON database:', error);
+      }
+    }
+  }
+
+  private async saveToDisk(): Promise<void> {
+    try {
+      await fs.writeFile(this.filePath, JSON.stringify(this.data, null, 2), 'utf-8');
+    } catch (error) {
+      console.error('Failed to write JSON database to disk:', error);
+    }
   }
 
   async init(): Promise<void> {
-    if (this.db) return;
-
-    this.db = await open({
-      filename: this.dbPath,
-      driver: sqlite3.Database
-    });
-
-    // Create tables if they do not exist
-    await this.db.exec(`
-      CREATE TABLE IF NOT EXISTS settings (
-        id INTEGER PRIMARY KEY CHECK (id = 1),
-        google_drive_folder_url TEXT NOT NULL,
-        google_drive_folder_id TEXT NOT NULL,
-        last_scan TEXT,
-        scan_frequency TEXT NOT NULL DEFAULT 'manual',
-        admin_google_id TEXT,
-        admin_access_token TEXT
-      );
-
-      CREATE TABLE IF NOT EXISTS scans (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        scan_time TEXT NOT NULL,
-        dataset TEXT NOT NULL
-      );
-    `);
-
-    // Gracefully alter table for migration if columns don't exist
-    try {
-      await this.db.exec(`ALTER TABLE settings ADD COLUMN scan_frequency TEXT NOT NULL DEFAULT 'manual';`);
-    } catch (e) {}
-    try {
-      await this.db.exec(`ALTER TABLE settings ADD COLUMN admin_google_id TEXT;`);
-    } catch (e) {}
-    try {
-      await this.db.exec(`ALTER TABLE settings ADD COLUMN admin_access_token TEXT;`);
-    } catch (e) {}
-  }
-
-  private getDb(): Database {
-    if (!this.db) {
-      throw new Error('Database not initialized. Call init() first.');
+    if (!this.isLoaded) {
+      await this.load();
     }
-    return this.db;
   }
 
   async getSettings(): Promise<Settings | null> {
-    const db = this.getDb();
-    const row = await db.get('SELECT google_drive_folder_url, google_drive_folder_id, last_scan, scan_frequency, admin_google_id, admin_access_token FROM settings WHERE id = 1');
-    if (!row) return null;
-    return {
-      google_drive_folder_url: row.google_drive_folder_url,
-      google_drive_folder_id: row.google_drive_folder_id,
-      last_scan: row.last_scan,
-      scan_frequency: row.scan_frequency || 'manual',
-      admin_google_id: row.admin_google_id || null,
-      admin_access_token: row.admin_access_token || null
-    };
+    await this.init();
+    return this.data.settings;
   }
 
   async saveSettings(url: string, folderId: string, scanFrequency: string): Promise<void> {
-    const db = this.getDb();
-    // Use INSERT OR REPLACE on id = 1 to maintain a single global setting row
-    await db.run(
-      `INSERT INTO settings (id, google_drive_folder_url, google_drive_folder_id, last_scan, scan_frequency)
-       VALUES (1, ?, ?, NULL, ?)
-       ON CONFLICT(id) DO UPDATE SET
-         google_drive_folder_url = excluded.google_drive_folder_url,
-         google_drive_folder_id = excluded.google_drive_folder_id,
-         scan_frequency = excluded.scan_frequency`,
-      url,
-      folderId,
-      scanFrequency
-    );
+    await this.init();
+    const existing = this.data.settings;
+    this.data.settings = {
+      google_drive_folder_url: url,
+      google_drive_folder_id: folderId,
+      scan_frequency: scanFrequency,
+      last_scan: existing ? existing.last_scan : null,
+      admin_google_id: existing ? existing.admin_google_id : null,
+      admin_access_token: existing ? existing.admin_access_token : null
+    };
+    await this.saveToDisk();
   }
 
   async storeAdminSession(googleId: string, accessToken: string): Promise<void> {
-    const db = this.getDb();
-    const existing = await this.getSettings();
-    if (existing) {
-      await db.run(
-        `UPDATE settings SET admin_google_id = ?, admin_access_token = ? WHERE id = 1`,
-        googleId,
-        accessToken
-      );
+    await this.init();
+    if (this.data.settings) {
+      this.data.settings.admin_google_id = googleId;
+      this.data.settings.admin_access_token = accessToken;
     } else {
-      await db.run(
-        `INSERT INTO settings (id, google_drive_folder_url, google_drive_folder_id, last_scan, scan_frequency, admin_google_id, admin_access_token)
-         VALUES (1, '', '', NULL, 'manual', ?, ?)`,
-        googleId,
-        accessToken
-      );
+      this.data.settings = {
+        google_drive_folder_url: '',
+        google_drive_folder_id: '',
+        last_scan: null,
+        scan_frequency: 'manual',
+        admin_google_id: googleId,
+        admin_access_token: accessToken
+      };
     }
+    await this.saveToDisk();
   }
 
   async updateLastScan(time: string): Promise<void> {
-    const db = this.getDb();
-    await db.run('UPDATE settings SET last_scan = ? WHERE id = 1', time);
+    await this.init();
+    if (this.data.settings) {
+      this.data.settings.last_scan = time;
+      await this.saveToDisk();
+    }
   }
 
   async saveScanResult(dataset: any): Promise<ScanResult> {
-    const db = this.getDb();
+    await this.init();
     const scanTime = new Date().toISOString();
     const datasetStr = JSON.stringify(dataset);
 
-    const result = await db.run(
-      'INSERT INTO scans (scan_time, dataset) VALUES (?, ?)',
-      scanTime,
-      datasetStr
-    );
+    const nextId = this.data.scans.length > 0 
+      ? Math.max(...this.data.scans.map(s => s.id || 0)) + 1 
+      : 1;
 
-    // Also update settings table's last_scan
-    await this.updateLastScan(scanTime);
-
-    return {
-      id: result.lastID,
+    const newScan: ScanResult = {
+      id: nextId,
       scan_time: scanTime,
       dataset: datasetStr
     };
+
+    this.data.scans.push(newScan);
+    await this.updateLastScan(scanTime); // updateLastScan saves to disk too
+    await this.saveToDisk();
+
+    return newScan;
   }
 
   async getLatestScan(): Promise<ScanResult | null> {
-    const db = this.getDb();
-    const row = await db.get('SELECT id, scan_time, dataset FROM scans ORDER BY id DESC LIMIT 1');
-    if (!row) return null;
-    return {
-      id: row.id,
-      scan_time: row.scan_time,
-      dataset: row.dataset
-    };
+    await this.init();
+    if (this.data.scans.length === 0) return null;
+    return this.data.scans[this.data.scans.length - 1];
   }
 }
 
