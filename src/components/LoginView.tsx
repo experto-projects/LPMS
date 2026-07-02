@@ -16,10 +16,10 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin, isLoggingIn, erro
             <BookOpenCheck className="h-6 w-6" />
           </div>
           <h2 className="text-3xl font-serif italic text-[#fafafa] text-center tracking-tight">
-            LPMS Foundation
+            Project LAMP
           </h2>
           <p className="mt-2 text-[10px] text-[#71717a] text-center uppercase tracking-[0.2em]">
-            Phase 1 Monitoring Interface
+            Lesson Approval and Management Portal
           </p>
         </div>
 
@@ -50,7 +50,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin, isLoggingIn, erro
         </div>
 
         <div className="text-center text-[10px] text-zinc-600 uppercase tracking-widest">
-          Lesson Plan Monitoring System &bull; Phase 1 MVP
+          Project LAMP &bull; Lesson Approval and Management Portal
         </div>
       </div>
     </div>

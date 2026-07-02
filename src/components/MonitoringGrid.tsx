@@ -49,7 +49,7 @@ export const MonitoringGrid: React.FC<MonitoringGridProps> = ({ dataset, isLoadi
         </p>
         {!dataset && (
           <p className="text-xs text-zinc-500">
-            Once saved, the LPMS will read Google Documents in the folder, scan their tabs, and compile a grid.
+            Once saved, Project LAMP will read Google Documents in the folder, scan their tabs, and compile a grid.
           </p>
         )}
       </div>

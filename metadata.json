@@ -1,5 +1,5 @@
 {
-  "name": "Lesson Plan Monitoring System",
+  "name": "Project LAMP - Lesson Approval and Management Portal",
   "description": "An automated lesson plan monitoring system that scans Google Drive folders and Google Docs tabs to track teacher submissions dynamically.",
   "requestFramePermissions": [],
   "majorCapabilities": [

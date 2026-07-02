@@ -211,10 +211,10 @@ export default function App() {
               </div>
               <div>
                 <span className="font-serif italic text-base sm:text-lg text-[#fafafa] tracking-tight block">
-                  LPMS Dashboard
+                  Project LAMP
                 </span>
                 <span className="text-[10px] text-zinc-500 block uppercase tracking-widest font-mono">
-                  Phase 1 MVP
+                  Lesson Approval and Management Portal
                 </span>
               </div>
             </div>
@@ -293,7 +293,7 @@ export default function App() {
       {/* Footer */}
       <footer className="bg-[#050505] border-t border-[#18181b] py-6 text-center text-[10px] text-zinc-600 uppercase tracking-widest">
         <div className="max-w-7xl mx-auto px-4">
-          &copy; {new Date().getFullYear()} Lesson Plan Monitoring System &bull; Designed for scale and maintainability
+          &copy; {new Date().getFullYear()} Project LAMP &bull; Lesson Approval and Management Portal
         </div>
       </footer>
     </div>
